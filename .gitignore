@@ -1,0 +1,38 @@
+# Local environment values and secrets
+.env
+.env.*
+!.env.example
+!*.env.example
+
+# Credentials and private keys
+*service-account*.json
+*credentials*.json
+*.pem
+*.key
+
+# Local overrides
+*.local
+
+# Runtime data and uploads
+App/Api/data/
+
+# Local reference and generated inspection files
+참고용/
+tmp/
+
+# Dependency and build output
+node_modules/
+dist/
+build/
+
+# Python local files
+.venv/
+__pycache__/
+*.py[cod]
+
+# Logs and editor files
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

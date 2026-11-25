@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#136f68">
+  <title>모둠 탐구실</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div class="background-grid" aria-hidden="true"></div>
+
+  <main id="login-view" class="entry-view">
+    <section class="entry-intro" aria-labelledby="entry-title">
+      <div class="brand-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="brand-name">모둠 탐구실</p>
+      <h1 id="entry-title">대화가 탐구 과정으로<br>또렷하게 남아요.</h1>
+      <p class="entry-description">친구들과 이야기하고, 역할을 나누고, 근거를 모아 우리 모둠의 생각을 완성해요.</p>
+      <ol class="entry-steps">
+        <li><strong>교사 안내</strong><span>오늘의 질문과 순서를 확인해요.</span></li>
+        <li><strong>실시간 대화</strong><span>각자의 태블릿에서 생각을 나눠요.</span></li>
+        <li><strong>작업 기록</strong><span>확인한 역할과 과정을 차곡차곡 남겨요.</span></li>
+      </ol>
+    </section>
+
+    <section class="entry-card" aria-label="로그인">
+      <div class="mode-tabs" role="tablist" aria-label="로그인 종류">
+        <button id="student-tab" class="mode-tab is-active" role="tab" aria-selected="true">학생으로 시작</button>
+        <button id="teacher-tab" class="mode-tab" role="tab" aria-selected="false">교사 화면</button>
+      </div>
+
+      <form id="student-login" class="login-form">
+        <div class="form-heading">
+          <h2>모둠방에 들어가기</h2>
+          <p>선생님이 알려준 정보와 내 정보를 입력하세요.</p>
+        </div>
+        <label>활동 코드
+          <input name="activityCode" value="SCIENCE6" maxlength="20" autocomplete="off" required>
+        </label>
+        <label>학급
+          <input name="className" value="5학년 1반" maxlength="30" required>
+        </label>
+        <label>이름
+          <input name="name" placeholder="예: 김하늘" maxlength="20" autocomplete="name" required>
+        </label>
+        <label>모둠
+          <select name="groupNo" required>
+            <option value="">모둠을 선택하세요</option>
+            <option value="1">1모둠</option><option value="2">2모둠</option>
+            <option value="3">3모둠</option><option value="4">4모둠</option>
+            <option value="5">5모둠</option><option value="6">6모둠</option>
+          </select>
+        </label>
+        <button class="primary-button" type="submit">내 모둠방 열기</button>
+        <p class="privacy-note">채팅과 작업 기록은 담당 교사가 확인할 수 있습니다.</p>
+      </form>
+
+      <form id="teacher-login" class="login-form" hidden>
+        <div class="form-heading">
+          <h2>학급 활동 살펴보기</h2>
+          <p>모둠 대화에 개입하지 않고 진행 과정을 확인합니다.</p>
+        </div>
+        <label>활동 코드
+          <input name="activityCode" value="SCIENCE6" maxlength="20" required>
+        </label>
+        <label>교사 코드
+          <input name="teacherCode" type="password" value="teacher-demo" maxlength="80" required>
+        </label>
+        <button class="primary-button" type="submit">전체 모둠 보기</button>
+      </form>
+      <p id="login-error" class="form-error" role="alert" hidden></p>
+    </section>
+  </main>
+
+  <main id="student-view" class="workspace" hidden>
+    <header class="workspace-header">
+      <div class="compact-brand"><span class="brand-dot"></span><strong>모둠 탐구실</strong></div>
+      <div class="session-summary">
+        <span id="student-group" class="group-chip"></span>
+        <span id="student-identity"></span>
+      </div>
+      <div class="header-actions">
+        <span id="connection-state" class="connection-state">연결 중</span>
+        <div id="timer" class="timer" aria-live="polite">--:--</div>
+        <button id="student-logout" class="quiet-button">나가기</button>
+      </div>
+    </header>
+
+    <div class="mobile-panel-switch" aria-label="화면 영역 선택">
+      <button data-panel="guide">수업 안내</button>
+      <button data-panel="chat" class="is-active">모둠 채팅</button>
+      <button data-panel="work">작업 기록</button>
+    </div>
+
+    <section class="three-panel-layout">
+      <aside id="guide-panel" class="panel guide-panel" aria-labelledby="guide-title">
+        <div class="panel-heading">
+          <p>선생님이 정한 오늘의 탐구</p>
+          <h2 id="guide-title">학습 안내</h2>
+        </div>
+        <div class="topic-block">
+          <span>탐구 질문</span>
+          <h3 id="activity-topic"></h3>
+        </div>
+        <div class="objective-block">
+          <span>오늘의 목표</span>
+          <p id="activity-objective"></p>
+        </div>
+        <ol id="activity-steps" class="activity-steps"></ol>
+        <div class="members-block">
+          <div class="section-title-row"><h3>우리 모둠</h3><span id="member-count"></span></div>
+          <ul id="member-list" class="member-list"></ul>
+        </div>
+      </aside>
+
+      <section id="chat-panel" class="panel chat-panel" aria-labelledby="chat-title">
+        <div class="panel-heading chat-heading">
+          <div>
+            <p>생각이 실시간으로 이어지는 곳</p>
+            <h2 id="chat-title">모둠 채팅</h2>
+          </div>
+          <button id="ai-help" class="ai-button" type="button">
+            <span aria-hidden="true">✦</span> AI에게 다음 단계 묻기
+          </button>
+        </div>
+        <div id="chat-status" class="chat-status" role="status">모둠원과 연결하고 있어요.</div>
+        <ol id="message-list" class="message-list" aria-live="polite"></ol>
+        <form id="message-form" class="message-composer">
+          <label class="file-button" title="이미지 또는 PDF 올리기">
+            <span aria-hidden="true">＋</span><span class="sr-only">파일 올리기</span>
+            <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,application/pdf">
+          </label>
+          <textarea id="message-input" rows="1" maxlength="1000" placeholder="친구들에게 생각을 알려주세요" required></textarea>
+          <button class="send-button" type="submit" aria-label="메시지 보내기">보내기</button>
+        </form>
+        <div id="upload-state" class="upload-state" aria-live="polite"></div>
+      </section>
+
+      <aside id="work-panel" class="panel work-panel" aria-labelledby="work-title">
+        <div class="panel-heading">
+          <p>확인한 내용만 남는 우리 기록</p>
+          <h2 id="work-title">역할과 작업 과정</h2>
+        </div>
+        <div class="work-legend"><span class="status-dot pending"></span>확인 대기 <span class="status-dot confirmed"></span>학생 확인</div>
+        <div id="work-items" class="work-items"></div>
+        <section id="student-feedback" class="student-feedback" hidden>
+          <span>선생님이 확인한 과정 피드백</span>
+          <h3>우리 모둠의 다음 성장</h3>
+          <p id="student-feedback-content"></p>
+        </section>
+        <div id="work-empty" class="empty-state">
+          <div class="empty-symbol" aria-hidden="true">⌁</div>
+          <strong>아직 확인한 작업이 없어요.</strong>
+          <p>채팅으로 역할과 할 일을 정한 뒤 AI에게 정리를 부탁해 보세요.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <main id="teacher-view" class="teacher-workspace" hidden>
+    <header class="workspace-header teacher-header">
+      <div class="compact-brand"><span class="brand-dot"></span><strong>교사 관찰실</strong></div>
+      <div><strong id="teacher-topic"></strong><span id="teacher-class" class="teacher-class"></span></div>
+      <div class="header-actions"><div id="teacher-timer" class="timer">--:--</div><button id="teacher-logout" class="quiet-button">나가기</button></div>
+    </header>
+    <section class="teacher-controls">
+      <form id="activity-form" class="activity-form">
+        <label>탐구 질문<input id="teacher-topic-input" required></label>
+        <label>학습 목표<input id="teacher-objective-input" required></label>
+        <label>활동 시간<input id="teacher-minutes" type="number" min="1" max="180" value="40" required><span>분</span></label>
+        <button class="primary-button" type="submit">활동 시간 새로 시작</button>
+      </form>
+      <p class="observer-note">교사 화면은 관찰 전용입니다. 학생 채팅에는 직접 참여하지 않습니다.</p>
+    </section>
+    <nav id="group-tabs" class="group-tabs" aria-label="모둠 선택"></nav>
+    <section id="teacher-group-detail" class="teacher-group-detail"></section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>
