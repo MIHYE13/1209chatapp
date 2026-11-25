@@ -3,12 +3,57 @@
 ## 현재 상태
 
 - 프로젝트 루트: `E:\1209_Project`
-- 현재 단계: 교실 시연용 MVP 구현 및 통합 검증 완료
+- 현재 단계: 교실 시연용 MVP 구현·통합 검증·저장소 분리 완료, 클라우드 배포 대기
 - 구현 상태: 학생·교사 핵심 흐름 및 프론트엔드·백엔드 독립 실행 구조 구현 완료
-- 다음 작업: 두 GitHub 저장소 푸시 후 Google Cloud Run 백엔드와 Netlify 프론트엔드 연결
+- 다음 작업: Google Cloud Run 백엔드 배포 후 Netlify 프론트엔드 연결
 - 승인 상태: 사용자가 웹앱 구현 단계 진행을 승인함
 
-사용자가 웹앱 구현 단계 진행을 명시적으로 승인했습니다. 승인된 교실 시연 MVP 범위 안에서 작은 단위로 구현·검증하며 운영 배포는 별도 승인 전까지 진행하지 않습니다.
+사용자가 웹앱 구현 단계 진행을 명시적으로 승인했습니다. 승인된 교실 시연 MVP 범위 안에서 작은 단위로 구현·검증합니다. 다음 작업은 사용자의 새 지시를 받은 뒤 시작합니다.
+
+## 2026-11-25 작업 중지 체크포인트
+
+### 저장 완료 상태
+
+- 전체·프론트엔드 저장소: `https://github.com/MIHYE13/1209chatapp.git`
+- 기능 구현 기준 커밋: `dc3d04d` (`Add teacher administration and backend deployment repo`)
+- 백엔드 전용 저장소: `https://github.com/MIHYE13/1209chatapp_back.git`
+- 백엔드 배포 기준 커밋: `289e211`
+- 실제 비밀값은 `.env.local`, `.env.firebase.local`에만 있으며 Git에서 제외됨
+- 로컬 실행 서버는 작업 종료 시 중지함
+
+### 확인된 외부 상태
+
+- Firebase 프로젝트: `wepapp-21e9c`
+- Firebase 웹 앱: `1209chatapp`
+- Firestore: `(default)`, Standard 에디션, `asia-northeast3`, 실시간 업데이트 활성
+- Netlify 프로젝트: `1209chatapp`
+- Netlify 배포 표시는 `ready`였으나 `https://1209chatapp.netlify.app`은 404이므로 재배포 필요
+- Google Cloud Run 백엔드는 아직 배포되지 않음
+
+### 검증 완료
+
+- `Tests/test_mvp.py`: HTTP, CORS, WebSocket, 타이머 흐름 통과
+- `Tests/test_teacher_admin.py`: 학생 모둠 변경, 개별 등록 초기화, 모둠 대화 초기화, 전체 학생 등록 초기화 통과
+- `App/Web/app.js`: JavaScript 문법 검사 통과
+- `App/Api/main.py`: Python 문법 검사 통과
+
+### 다음 작업 시작 순서
+
+1. Google Cloud CLI 또는 Cloud Console 로그인·프로젝트 `wepapp-21e9c` 선택 상태를 확인합니다.
+2. `1209chatapp_back` 저장소를 Cloud Run 서비스에 연결하거나 저장소 루트의 Dockerfile로 배포합니다.
+3. Cloud Run 비밀 환경변수 `OPENAI_API_KEY`, `OPENAI_MODEL`, `TEACHER_CODE`, `ALLOWED_ORIGINS`를 설정합니다.
+4. 공개된 Cloud Run HTTPS 주소에서 `/api/health`와 WebSocket 연결을 확인합니다.
+5. Netlify의 `API_BASE_URL`, `WS_BASE_URL`을 Cloud Run 주소로 설정하고 프론트엔드를 다시 배포합니다.
+6. 학생 태블릿 2대 이상과 교사 화면으로 로그인, 채팅, 타이머, 파일, 관리자 기능을 통합 검증합니다.
+7. 운영 확장 전 SQLite·로컬 파일을 Firestore·Cloud Storage로 전환합니다.
+8. AI 보조교사의 단계 판단·검색·자료 정리 흐름은 LangGraph, 도구 연결은 LangChain으로 서버 측에 도입합니다. 실시간 채팅 자체는 Firebase/WebSocket 영역으로 유지합니다.
+
+### 다음 작업에서 지킬 사항
+
+- Cloud Run이나 Netlify의 실제 배포 변경은 사용자의 다음 지시 후 시작합니다.
+- OpenAI 키와 교사 코드는 저장소에 커밋하지 않습니다.
+- Firestore 브라우저 직접 접근은 기본 거부하고 FastAPI 백엔드만 관리 권한으로 접근하도록 설계합니다.
+- LangGraph 도입은 기존 AI 도움 API의 동작을 보존하는 작은 단계로 진행하고, 호출 조건·상태 요약·출력 제한으로 토큰을 최소화합니다.
 
 ## 수업 참고자료 반영
 
@@ -21,7 +66,7 @@
 2. FastAPI 백엔드가 로그인, 저장, 실시간 채팅, 타이머와 OpenAI API를 담당합니다.
 3. 실제 환경변수는 `.env.local`과 배포 플랫폼 비밀 설정에서만 관리합니다.
 4. 로컬 MVP는 SQLite로 검증하고, 운영 확장 시 Firestore와 보안 규칙을 검토합니다.
-5. LangGraph, Skill, MCP는 워크플로가 복잡해져 상태 복구가 필요할 때 도입을 재검토합니다.
+5. AI 보조교사의 단계 판단과 도구 실행은 LangGraph·LangChain을 서버 측에 단계적으로 도입합니다.
 6. 기능을 한 번에 확장하지 않고 구현과 확인을 반복합니다.
 
 ## 구현 결과
@@ -46,7 +91,7 @@
 - 로그인은 간편 식별 방식이며 강한 인증이 아닙니다.
 - 로컬 SQLite와 파일 저장소는 단일 서버 시연용입니다.
 - 파일 악성코드 검사는 포함하지 않습니다.
-- Firebase 앱 ID는 등록했지만 Firestore 프로젝트·인증이 확정되지 않아 아직 연결하지 않았습니다.
+- Firebase 프로젝트와 Firestore 인스턴스는 확인했지만 애플리케이션 데이터 저장소는 아직 SQLite입니다.
 - 운영 배포, HTTPS, 데이터 보관·삭제, 백업과 실제 학교 와이파이 검증이 남아 있습니다.
 
 ## 제품 목표 초안
