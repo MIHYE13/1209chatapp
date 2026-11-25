@@ -61,6 +61,19 @@ def verify_http() -> None:
     health = httpx.get(f"{BASE_URL}/api/health", timeout=10)
     health.raise_for_status()
     assert health.json()["status"] == "ok"
+    service = httpx.get(f"{BASE_URL}/", timeout=10)
+    service.raise_for_status()
+    assert service.json()["service"] == "science-collab-api"
+    cors = httpx.options(
+        f"{BASE_URL}/api/health",
+        headers={
+            "Origin": "http://127.0.0.1:5173",
+            "Access-Control-Request-Method": "GET",
+        },
+        timeout=10,
+    )
+    cors.raise_for_status()
+    assert cors.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
     overview = httpx.get(
         f"{BASE_URL}/api/teacher/overview/SCIENCE6",
         headers={"X-Teacher-Code": "teacher-demo"},

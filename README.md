@@ -15,15 +15,30 @@
 - 서버 기준 활동 타이머
 - SQLite 로컬 저장
 
-## 실행
+## 구조
 
-Python 3.14 환경에서 다음 명령을 실행합니다.
+```text
+App/Web  - 독립 프론트엔드, Netlify 배포 대상
+App/Api  - 독립 FastAPI 백엔드, 컨테이너 배포 대상
+```
+
+프론트엔드와 백엔드는 별도 프로세스로 실행되며 HTTP API와 WebSocket으로 통신합니다. OpenAI 키, 교사 코드, 데이터베이스와 업로드 파일은 백엔드에서만 관리합니다.
+
+## 로컬 실행
+
+첫 번째 터미널에서 백엔드를 실행합니다.
 
 ```powershell
 python -m uvicorn App.Api.main:app --host 0.0.0.0 --port 8000
 ```
 
-브라우저에서 `http://localhost:8000`을 엽니다. 같은 와이파이의 태블릿에서는 실행 컴퓨터의 내부 IP 주소와 포트 `8000`으로 접속합니다.
+두 번째 터미널에서 프론트엔드를 실행합니다.
+
+```powershell
+python -m http.server 5173 --bind 0.0.0.0 --directory App/Web
+```
+
+브라우저에서 `http://localhost:5173`을 엽니다. 같은 와이파이의 태블릿에서는 실행 컴퓨터의 내부 IP 주소와 포트 `5173`으로 접속합니다.
 
 ## 기본 시연 정보
 
@@ -43,9 +58,48 @@ TEACHER_CODE=teacher-demo
 
 API 키는 브라우저로 전달되지 않으며 OpenAI 호출은 백엔드에서만 수행됩니다.
 
+백엔드에는 실제 프론트엔드 Origin을 설정합니다.
+
+```env
+ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```
+
+## 프론트엔드 빌드
+
+프론트엔드는 빌드 시 공개 백엔드 주소를 주입합니다. 두 값은 브라우저에 공개되므로 비밀정보를 넣지 않습니다.
+
+```powershell
+$env:API_BASE_URL="https://api.example.com"
+$env:WS_BASE_URL="wss://api.example.com"
+node App/Web/build.mjs
+```
+
+생성 결과는 `App/Web/dist`에 위치합니다.
+
+## Netlify 프론트엔드
+
+저장소 루트의 `netlify.toml`이 다음을 수행합니다.
+
+- 기본 디렉터리: `App/Web`
+- 빌드 명령: `node build.mjs`
+- 공개 디렉터리: `dist`
+- SPA fallback과 기본 보안 헤더
+
+Netlify 빌드 환경변수에 `API_BASE_URL`, `WS_BASE_URL`을 설정해야 합니다.
+
+## 백엔드 컨테이너
+
+저장소 루트에서 다음과 같이 빌드합니다.
+
+```powershell
+docker build -f App/Api/Dockerfile -t science-collab-api .
+```
+
+운영 백엔드 환경변수에는 `OPENAI_API_KEY`, `OPENAI_MODEL`, `TEACHER_CODE`, `ALLOWED_ORIGINS`를 설정합니다. `ALLOWED_ORIGINS`에는 배포된 Netlify 주소만 허용합니다.
+
 ## 현재 MVP의 한계
 
 - 활동 코드와 이름·모둠 번호는 강한 인증 방식이 아닙니다.
 - 파일 검사는 형식·용량 제한만 포함하며 운영 수준 악성 파일 검사는 없습니다.
-- 로컬 SQLite와 파일 저장소를 사용하므로 여러 서버 인스턴스 배포에는 적합하지 않습니다.
+- 로컬 SQLite와 파일 저장소를 사용하므로 백엔드를 여러 인스턴스로 배포하기 전 Firestore와 클라우드 파일 저장소로 전환해야 합니다.
 - 정식 운영 전 HTTPS, 데이터 보관·삭제, 백업, 부하 및 학교 기기 검증이 필요합니다.

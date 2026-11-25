@@ -24,6 +24,7 @@ tmp/
 node_modules/
 dist/
 build/
+App/Web/dist/
 
 # Python local files
 .venv/

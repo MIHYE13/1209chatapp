@@ -16,6 +16,12 @@ const state = {
   feedbackDrafts: {},
 };
 
+const runtimeConfig = window.APP_CONFIG || {};
+const API_BASE_URL = String(runtimeConfig.API_BASE_URL || `http://${location.hostname}:8000`).replace(/\/$/, "");
+const WS_BASE_URL = String(
+  runtimeConfig.WS_BASE_URL || API_BASE_URL.replace(/^http:/, "ws:").replace(/^https:/, "wss:")
+).replace(/\/$/, "");
+
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
@@ -34,7 +40,7 @@ async function api(path, options = {}) {
     headers.set("Content-Type", "application/json");
     options.body = JSON.stringify(options.json);
   }
-  const response = await fetch(path, { ...options, headers });
+  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
   if (!response.ok) {
     let message = "요청을 처리하지 못했습니다.";
     try { message = (await response.json()).detail || message; } catch (_) {}
@@ -170,7 +176,9 @@ function createMessageNode(message) {
   if (message.attachment) {
     const file = document.createElement("a");
     file.className = "attachment-link";
-    file.href = message.attachment.url;
+    file.href = message.attachment.url.startsWith("http")
+      ? message.attachment.url
+      : `${API_BASE_URL}${message.attachment.url}`;
     file.target = "_blank";
     file.rel = "noopener";
     file.textContent = `첨부 파일 · ${message.attachment.name}`;
@@ -253,8 +261,7 @@ function upsertWorkItem(item) {
 
 function connectSocket() {
   if (state.socket) state.socket.close();
-  const protocol = location.protocol === "https:" ? "wss" : "ws";
-  const socket = new WebSocket(`${protocol}://${location.host}/ws?token=${encodeURIComponent(state.token)}`);
+  const socket = new WebSocket(`${WS_BASE_URL}/ws?token=${encodeURIComponent(state.token)}`);
   state.socket = socket;
   socket.addEventListener("open", () => {
     $("#connection-state").textContent = "실시간 연결";
