@@ -184,12 +184,30 @@ input:hover, select:hover, textarea:hover { border-color: #88aaa4; }
 .activity-form { display: grid; grid-template-columns: 1.4fr 1.4fr 130px auto; gap: 12px; align-items: end; }
 .activity-form label:nth-child(3) { grid-template-columns: 1fr auto; align-items: end; }
 .observer-note { margin: 10px 0 0; color: var(--ink-soft); font-size: 12px; }
+.teacher-control-note { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: 10px; }
+.danger-button { border: 1px solid #bc5a45; background: var(--coral-pale); color: #8b3523; padding: 8px 11px; border-radius: 7px; font-size: 11px; font-weight: 800; }
+.danger-button:hover { background: #f8d3c7; }
 .group-tabs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 14px 22px 0; }
 .group-tabs button { border: 1px solid var(--line); background: white; padding: 10px; border-radius: var(--radius-sm); color: var(--ink-soft); font-weight: 800; }
 .group-tabs button.is-active { background: var(--teal); color: white; border-color: var(--teal); }
 .teacher-group-detail { padding: 16px 22px 28px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, .8fr); gap: 16px; }
 .teacher-column { background: white; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
 .teacher-column h2 { margin: 0; padding: 14px 16px; font-size: 17px; border-bottom: 1px solid var(--line); }
+.teacher-column-title { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.teacher-column-title h2 { padding: 0; border: 0; }
+.small-danger-button { border: 1px solid #d29182; background: white; color: #934532; padding: 6px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+.student-admin { border-bottom: 1px solid var(--line); }
+.student-admin h3 { margin: 0; padding: 11px 14px 6px; font-size: 13px; }
+.student-admin-note { margin: 0; padding: 0 14px 10px; color: var(--ink-soft); font-size: 10px; }
+.student-admin-list { display: grid; gap: 1px; background: var(--line); border-top: 1px solid var(--line); }
+.student-admin-row { display: grid; grid-template-columns: minmax(100px, 1fr) 110px auto auto; gap: 7px; align-items: center; padding: 9px 12px; background: white; }
+.student-admin-name { font-size: 12px; font-weight: 800; }
+.student-admin-name span { display: block; color: var(--ink-soft); font-size: 10px; font-weight: 600; }
+.student-admin-row select { padding: 6px; font-size: 11px; }
+.student-admin-row button { padding: 6px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+.move-student-button { border: 1px solid var(--teal); background: var(--teal-pale); color: var(--teal-deep); }
+.remove-student-button { border: 1px solid #d29182; background: white; color: #934532; }
+.student-admin-empty { padding: 18px 14px; color: var(--ink-soft); font-size: 12px; }
 .teacher-messages, .teacher-work-list { max-height: calc(100vh - 300px); overflow-y: auto; padding: 14px; display: grid; gap: 9px; }
 .teacher-message { padding: 9px 10px; background: var(--paper-cool); border-left: 3px solid var(--teal); font-size: 13px; }
 .teacher-message strong { margin-right: 7px; }
@@ -233,6 +251,8 @@ input:hover, select:hover, textarea:hover { border-color: #88aaa4; }
   .teacher-group-detail { grid-template-columns: 1fr; padding: 12px; }
   .group-tabs { grid-template-columns: repeat(3, 1fr); padding: 12px 12px 0; }
   .activity-form { grid-template-columns: 1fr; }
+  .teacher-control-note { align-items: stretch; flex-direction: column; }
+  .student-admin-row { grid-template-columns: 1fr 90px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

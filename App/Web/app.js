@@ -284,6 +284,32 @@ function connectSocket() {
     } else if (event.type === "presence") {
       $("#chat-status").textContent = event.message;
       setTimeout(refreshBootstrap, 300);
+    } else if (event.type === "members_changed") {
+      refreshBootstrap();
+    } else if (event.type === "student_moved") {
+      if (event.studentName === state.student?.name) {
+        showToast(`교사가 ${event.groupNo}모둠으로 이동했습니다. 다시 로그인해 주세요.`);
+        setTimeout(logoutStudent, 1800);
+      } else {
+        refreshBootstrap();
+      }
+    } else if (event.type === "student_removed") {
+      if (event.studentName === state.student?.name) {
+        showToast("교사가 학생 등록을 초기화했습니다. 다시 등록해 주세요.");
+        setTimeout(logoutStudent, 1800);
+      } else {
+        refreshBootstrap();
+      }
+    } else if (event.type === "registration_reset") {
+      showToast("교사가 전체 학생 등록을 초기화했습니다.");
+      setTimeout(logoutStudent, 1800);
+    } else if (event.type === "conversation_reset") {
+      state.messages = [];
+      state.workItems = [];
+      state.feedback = null;
+      renderMessages();
+      renderWorkItems();
+      $("#chat-status").textContent = "교사가 이 모둠의 대화 기록을 초기화했습니다.";
     } else if (event.type === "error") {
       showToast(event.message);
     }
@@ -409,8 +435,26 @@ function renderTeacherGroup(group) {
   detail.textContent = "";
   const chatColumn = document.createElement("article");
   chatColumn.className = "teacher-column";
+  const chatTitleRow = document.createElement("div");
+  chatTitleRow.className = "teacher-column-title";
   const chatTitle = document.createElement("h2");
   chatTitle.textContent = `${group.groupNo}모둠 실시간 대화`;
+  const resetConversationButton = document.createElement("button");
+  resetConversationButton.className = "small-danger-button";
+  resetConversationButton.textContent = "이 모둠 대화 초기화";
+  resetConversationButton.addEventListener("click", async () => {
+    const confirmed = window.confirm(`${group.groupNo}모둠의 채팅, 작업 기록, 피드백과 첨부 파일을 모두 삭제할까요? 삭제한 내용은 복구할 수 없습니다.`);
+    if (!confirmed) return;
+    try {
+      await api(`/api/teacher/groups/${encodeURIComponent(state.teacherActivityCode)}/${group.groupNo}/conversation`, {
+        method: "DELETE", headers: { "X-Teacher-Code": state.teacherCode },
+      });
+      delete state.feedbackDrafts[group.groupNo];
+      showToast(`${group.groupNo}모둠의 대화 기록을 초기화했습니다.`);
+      await loadTeacherOverview();
+    } catch (error) { showToast(error.message); }
+  });
+  chatTitleRow.append(chatTitle, resetConversationButton);
   const messages = document.createElement("div");
   messages.className = "teacher-messages";
   if (!group.messages.length) messages.textContent = "아직 대화가 없습니다.";
@@ -426,9 +470,73 @@ function renderTeacherGroup(group) {
     entry.append(name, time, text);
     messages.append(entry);
   });
-  chatColumn.append(chatTitle, messages);
+  chatColumn.append(chatTitleRow, messages);
   const workColumn = document.createElement("article");
   workColumn.className = "teacher-column";
+  const studentAdmin = document.createElement("section");
+  studentAdmin.className = "student-admin";
+  const studentAdminTitle = document.createElement("h3");
+  studentAdminTitle.textContent = `${group.groupNo}모둠 등록 학생`;
+  const studentAdminNote = document.createElement("p");
+  studentAdminNote.className = "student-admin-note";
+  studentAdminNote.textContent = "모둠을 바꾸면 역할은 새 모둠 인원 순서에 맞춰 다시 배정됩니다.";
+  const studentAdminList = document.createElement("div");
+  studentAdminList.className = "student-admin-list";
+  if (!group.members.length) {
+    const empty = document.createElement("div");
+    empty.className = "student-admin-empty";
+    empty.textContent = "등록된 학생이 없습니다.";
+    studentAdminList.append(empty);
+  }
+  group.members.forEach((member) => {
+    const row = document.createElement("div");
+    row.className = "student-admin-row";
+    const identity = document.createElement("div");
+    identity.className = "student-admin-name";
+    identity.textContent = member.name;
+    const role = document.createElement("span");
+    role.textContent = member.role;
+    identity.append(role);
+    const groupSelect = document.createElement("select");
+    groupSelect.setAttribute("aria-label", `${member.name} 학생 모둠`);
+    for (let groupNo = 1; groupNo <= 6; groupNo += 1) {
+      const option = document.createElement("option");
+      option.value = String(groupNo);
+      option.textContent = `${groupNo}모둠`;
+      option.selected = groupNo === group.groupNo;
+      groupSelect.append(option);
+    }
+    const moveButton = document.createElement("button");
+    moveButton.className = "move-student-button";
+    moveButton.textContent = "모둠 변경";
+    moveButton.addEventListener("click", async () => {
+      const targetGroup = Number(groupSelect.value);
+      if (targetGroup === group.groupNo) { showToast("현재 모둠과 같습니다."); return; }
+      try {
+        await api(`/api/teacher/students/${member.id}`, {
+          method: "PUT", headers: { "X-Teacher-Code": state.teacherCode }, json: { group_no: targetGroup },
+        });
+        showToast(`${member.name} 학생을 ${targetGroup}모둠으로 이동했습니다.`);
+        await loadTeacherOverview();
+      } catch (error) { showToast(error.message); }
+    });
+    const removeButton = document.createElement("button");
+    removeButton.className = "remove-student-button";
+    removeButton.textContent = "등록 초기화";
+    removeButton.addEventListener("click", async () => {
+      if (!window.confirm(`${member.name} 학생의 등록을 초기화할까요? 학생은 다시 등록해야 합니다.`)) return;
+      try {
+        await api(`/api/teacher/students/${member.id}`, {
+          method: "DELETE", headers: { "X-Teacher-Code": state.teacherCode },
+        });
+        showToast(`${member.name} 학생의 등록을 초기화했습니다.`);
+        await loadTeacherOverview();
+      } catch (error) { showToast(error.message); }
+    });
+    row.append(identity, groupSelect, moveButton, removeButton);
+    studentAdminList.append(row);
+  });
+  studentAdmin.append(studentAdminTitle, studentAdminNote, studentAdminList);
   const workTitle = document.createElement("h2");
   workTitle.textContent = "역할과 작업 기록";
   const workList = document.createElement("div");
@@ -488,7 +596,7 @@ function renderTeacherGroup(group) {
   });
   feedbackActions.append(draftButton, publishButton);
   feedbackEditor.append(feedbackTitle, feedbackText, feedbackActions);
-  workColumn.append(workTitle, workList, feedbackEditor);
+  workColumn.append(studentAdmin, workTitle, workList, feedbackEditor);
   detail.append(chatColumn, workColumn);
   messages.scrollTop = messages.scrollHeight;
 }
@@ -558,6 +666,16 @@ $("#file-input").addEventListener("change", (event) => handleFile(event.target.f
 $("#ai-help").addEventListener("click", askAi);
 $("#student-logout").addEventListener("click", logoutStudent);
 $("#teacher-logout").addEventListener("click", logoutTeacher);
+$("#reset-all-students").addEventListener("click", async () => {
+  if (!window.confirm("이 활동에 등록된 모든 학생을 초기화할까요? 모든 학생이 다시 등록해야 합니다. 채팅 기록은 유지됩니다.")) return;
+  try {
+    const result = await api(`/api/teacher/activities/${encodeURIComponent(state.teacherActivityCode)}/students`, {
+      method: "DELETE", headers: { "X-Teacher-Code": state.teacherCode },
+    });
+    showToast(`${result.deletedStudents}명의 학생 등록을 초기화했습니다.`);
+    await loadTeacherOverview();
+  } catch (error) { showToast(error.message); }
+});
 $("#message-input").addEventListener("input", (event) => {
   event.target.style.height = "auto";
   event.target.style.height = `${Math.min(event.target.scrollHeight, 120)}px`;

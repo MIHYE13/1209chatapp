@@ -12,6 +12,7 @@
 - OpenAI API를 이용한 토큰 절약형 다음 행동 제안
 - 학생 확인 후 오른쪽 작업 기록 반영
 - 교사용 1~6모둠 관찰 화면
+- 교사용 학생 확인·모둠 변경·등록 초기화·모둠 대화 초기화
 - 서버 기준 활동 타이머
 - SQLite 로컬 저장
 
@@ -21,6 +22,9 @@
 App/Web  - 독립 프론트엔드, Netlify 배포 대상
 App/Api  - 독립 FastAPI 백엔드, 컨테이너 배포 대상
 ```
+
+- 프론트엔드·작업 저장소: `https://github.com/MIHYE13/1209chatapp`
+- 백엔드 배포 저장소: `https://github.com/MIHYE13/1209chatapp_back`
 
 프론트엔드와 백엔드는 별도 프로세스로 실행되며 HTTP API와 WebSocket으로 통신합니다. OpenAI 키, 교사 코드, 데이터베이스와 업로드 파일은 백엔드에서만 관리합니다.
 
@@ -92,7 +96,7 @@ Netlify 빌드 환경변수에 `API_BASE_URL`, `WS_BASE_URL`을 설정해야 합
 저장소 루트에서 다음과 같이 빌드합니다.
 
 ```powershell
-docker build -f App/Api/Dockerfile -t science-collab-api .
+docker build -f App/Api/Dockerfile -t science-collab-api App/Api
 ```
 
 운영 백엔드 환경변수에는 `OPENAI_API_KEY`, `OPENAI_MODEL`, `TEACHER_CODE`, `ALLOWED_ORIGINS`를 설정합니다. `ALLOWED_ORIGINS`에는 배포된 Netlify 주소만 허용합니다.
