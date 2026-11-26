@@ -1,6 +1,6 @@
 # 024. Cloud Run 교실 시연용 공개 배포
 
-- 상태: 승인
+- 상태: 구현 및 검증 완료
 - 날짜: 2026-11-26
 
 ## 결정
@@ -35,3 +35,17 @@ Netlify와 학생 태블릿이 백엔드에 직접 연결하려면 공개 HTTPS 
 - 최대 인스턴스가 1개로 제한되어야 합니다.
 - 저장소나 브라우저 번들에 실제 비밀값이 포함되지 않아야 합니다.
 - 학생·교사 API는 HTTP 503, WebSocket은 연결 거부 상태여야 합니다.
+
+## 2026-11-26 구현 결과
+
+- 서비스: `science-chat-backend`
+- 리전: `asia-northeast3`
+- 공개 주소: `https://science-chat-backend-174233430510.asia-northeast3.run.app`
+- 백엔드 배포 커밋: `15bff0a`
+- Cloud Build 빌드·이미지 푸시·Cloud Run 배포 성공
+- 컨테이너 시작 오류였던 얕은 경로의 `Path.parents[1]` 접근을 수정함
+- `DEPLOYMENT_MODE=health-only` 적용 확인
+- 최소 인스턴스 0개, 최대 인스턴스 1개 적용 확인
+- 공개 액세스 허용 적용 확인
+- `/api/health`에서 `{"status":"ok"}` 확인
+- `/api/login`에서 안전 모드 차단 응답 확인
