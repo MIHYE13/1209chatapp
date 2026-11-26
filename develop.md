@@ -55,6 +55,14 @@
 - Firestore 브라우저 직접 접근은 기본 거부하고 FastAPI 백엔드만 관리 권한으로 접근하도록 설계합니다.
 - LangGraph 도입은 기존 AI 도움 API의 동작을 보존하는 작은 단계로 진행하고, 호출 조건·상태 요약·출력 제한으로 토큰을 최소화합니다.
 
+### 2026-11-26 다음 단계 승인
+
+- 사용자가 Cloud Run 교실 시연용 공개 배포를 승인함
+- 이번 단위는 최대 인스턴스 1개, 공개 HTTPS 주소와 `/api/health` 검증까지로 제한함
+- Netlify 연결, 실제 학생 데이터와 OpenAI 호출은 이번 단위에서 제외함
+- 결정 기록: `Docs/Decisions/024-cloud-run-public-demo.md`
+- 공개 배포 안전장치: `DEPLOYMENT_MODE=health-only` 구현 및 로컬 상태 API 200·로그인 API 503 검증 완료
+
 ## 수업 참고자료 반영
 
 - `Docs/Research/10주차-AI융합교육을-위한-웹프로그래밍-기초.md`

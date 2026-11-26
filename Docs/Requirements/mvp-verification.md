@@ -12,6 +12,8 @@
 - 두 학생 WebSocket 메시지 동기화 통과
 - 서버 시간 기반 활동 열림·종료 판정 통과
 - 이미지 업로드 형식·경로 처리 통과
+- `DEPLOYMENT_MODE=health-only`에서 `/api/health` HTTP 200 확인
+- `DEPLOYMENT_MODE=health-only`에서 학생 로그인 API HTTP 503 차단 확인
 
 ## 브라우저 검사
 
