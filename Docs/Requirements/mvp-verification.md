@@ -66,3 +66,13 @@
 - Cloud Build `36da4073-d555-4f43-9c61-bddc1172b70b` 빌드·이미지 푸시·Cloud Run 배포 성공
 - 공개 Netlify 화면에서 검증용 입력 후 `배포 상태 확인 중입니다.` 안내가 표시되는 것을 확인
 - 안전 모드에서 로그인 요청이 차단되어 검증용 학생 데이터는 생성되지 않음
+
+## 2026-11-27 교사 코드 Secret Manager 참조 검증
+
+- 기존 `TEACHER_CODE` 보안 비밀의 `latest` 버전을 Cloud Run 환경변수 참조로 설정함
+- 일반 환경변수에는 `DEPLOYMENT_MODE=health-only`, `ALLOWED_ORIGINS`만 유지됨
+- Cloud Run 실행 서비스 계정의 Secret Manager 접근 권한 누락으로 새 버전 생성은 실패함
+- 실패한 버전으로 트래픽이 전환되지 않아 기존 공개 서비스는 정상 유지됨
+- 공개 HTTPS `/api/health` 응답 `{"status":"ok"}` 재확인
+- 공개 Netlify 학생 로그인 화면 정상 표시 재확인
+- 다음 검증은 사용자 승인 후 해당 비밀 범위의 접근 권한을 부여하고 재배포하여 수행함

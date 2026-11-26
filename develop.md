@@ -3,9 +3,9 @@
 ## 현재 상태
 
 - 프로젝트 루트: `E:\1209_Project`
-- 현재 단계: Netlify 프론트엔드와 Cloud Run `health-only` 연결·CORS 검증 완료
+- 현재 단계: 교사 코드 Secret Manager 참조 연결 시도 후 실행 계정 권한 승인 대기
 - 구현 상태: 학생·교사 핵심 흐름 및 프론트엔드·백엔드 독립 실행 구조 구현 완료
-- 다음 작업: 사용자 확인 후 Secret Manager 참조 구성 또는 비밀키가 필요 없는 다음 기능 단위를 선택
+- 다음 작업: 사용자 확인 후 Cloud Run 실행 서비스 계정에 해당 `TEACHER_CODE` 보안 비밀의 Secret Manager Secret Accessor 권한을 부여하고 재배포
 - 승인 상태: 사용자가 웹앱 구현 단계 진행을 승인함
 
 사용자가 웹앱 구현 단계 진행을 명시적으로 승인했습니다. 승인된 교실 시연 MVP 범위 안에서 작은 단위로 구현·검증합니다. 다음 작업은 사용자의 새 지시를 받은 뒤 시작합니다.
@@ -99,6 +99,16 @@
 - 메인 커밋 `b07b95c`, 백엔드 분리 커밋 `7a79fd5` GitHub 푸시 완료
 - Cloud Build `36da4073-d555-4f43-9c61-bddc1172b70b` 성공, 새 Cloud Run 버전 생성과 트래픽 전환 완료
 - 공개 Netlify 화면에서 학생 로그인 시 `배포 상태 확인 중입니다.` 안내 정상 표시 확인
+
+### 2026-11-27 교사 코드 Secret Manager 참조 연결 시도
+
+- 기존 Secret Manager 보안 비밀 `TEACHER_CODE`의 `latest` 버전을 Cloud Run 환경변수 `TEACHER_CODE`로 참조하도록 설정함
+- 일반 환경변수에는 `DEPLOYMENT_MODE=health-only`, `ALLOWED_ORIGINS`만 유지했고 OpenAI 키는 추가하거나 변경하지 않음
+- 새 버전 생성은 Cloud Run 실행 서비스 계정에 해당 비밀을 읽는 `Secret Manager Secret Accessor` 권한이 없어 실패함
+- 실패한 버전으로 트래픽이 전환되지 않아 기존 공개 서비스는 그대로 유지됨
+- 공개 `/api/health`에서 `{"status":"ok"}` 응답과 Netlify 학생 로그인 화면 표시를 재확인함
+- 권한 부여는 외부 접근 권한 변경이므로 사용자 확인 후 별도 단계로 진행함
+- 결정 기록: `Docs/Decisions/026-teacher-code-secret-manager.md`
 
 ## 수업 참고자료 반영
 
