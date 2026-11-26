@@ -3,9 +3,9 @@
 ## 현재 상태
 
 - 프로젝트 루트: `E:\1209_Project`
-- 현재 단계: 교사 코드 Secret Manager 참조 연결 시도 후 실행 계정 권한 승인 대기
+- 현재 단계: 교사 코드 Secret Manager 참조 연결 및 안전 모드 재검증 완료
 - 구현 상태: 학생·교사 핵심 흐름 및 프론트엔드·백엔드 독립 실행 구조 구현 완료
-- 다음 작업: 사용자 확인 후 Cloud Run 실행 서비스 계정에 해당 `TEACHER_CODE` 보안 비밀의 Secret Manager Secret Accessor 권한을 부여하고 재배포
+- 다음 작업: 사용자 확인 후 OpenAI 키를 건드리지 않는 다음 기능 단위를 선택
 - 승인 상태: 사용자가 웹앱 구현 단계 진행을 승인함
 
 사용자가 웹앱 구현 단계 진행을 명시적으로 승인했습니다. 승인된 교실 시연 MVP 범위 안에서 작은 단위로 구현·검증합니다. 다음 작업은 사용자의 새 지시를 받은 뒤 시작합니다.
@@ -109,6 +109,17 @@
 - 공개 `/api/health`에서 `{"status":"ok"}` 응답과 Netlify 학생 로그인 화면 표시를 재확인함
 - 권한 부여는 외부 접근 권한 변경이므로 사용자 확인 후 별도 단계로 진행함
 - 결정 기록: `Docs/Decisions/026-teacher-code-secret-manager.md`
+
+### 2026-11-27 교사 코드 Secret Manager 참조 연결 완료
+
+- 사용자 승인 후 Cloud Run 실행 서비스 계정에 `TEACHER_CODE` 보안 비밀 범위로만 `Secret Manager Secret Accessor` 역할을 부여함
+- 프로젝트 전체 권한은 추가하지 않았으며 다른 보안 비밀의 권한도 변경하지 않음
+- 동일한 Cloud Run 구성으로 새 버전을 재배포했고 서비스 정상 상태와 트래픽 전환 완료를 확인함
+- 일반 환경변수는 `DEPLOYMENT_MODE=health-only`, `ALLOWED_ORIGINS`만 유지됨
+- `TEACHER_CODE`는 `latest` 버전의 Secret Manager 참조로만 연결됨
+- OpenAI 키는 조회·생성·연결·변경하지 않음
+- 공개 `/api/health` 응답 `{"status":"ok"}` 확인
+- 허용된 Netlify Origin의 로그인 요청이 HTTP 503과 CORS 허용 헤더를 반환하여 안전 모드 차단이 유지됨을 확인
 
 ## 수업 참고자료 반영
 

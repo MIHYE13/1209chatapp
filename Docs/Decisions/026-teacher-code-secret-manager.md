@@ -1,6 +1,6 @@
 # 026. 교사 코드 Secret Manager 참조 연결
 
-- 상태: 참조 설정 완료, 실행 계정 권한 승인 대기
+- 상태: 완료
 - 날짜: 2026-11-27
 
 ## 결정
@@ -44,3 +44,15 @@ Cloud Run의 `TEACHER_CODE`는 일반 환경변수 값으로 저장하지 않고
 - 프로젝트 전체가 아닌 해당 보안 비밀에만 권한을 한정
 - 같은 참조 구성으로 재배포 후 새 버전 정상 상태와 `health-only` 차단을 검증
 - 권한 변경은 사용자 확인 전에는 수행하지 않음
+
+## 2026-11-27 완료 결과
+
+- 사용자가 `TEACHER_CODE` 보안 비밀 하나에 한정한 실행 계정 권한 부여를 승인함
+- Cloud Run 실행 서비스 계정에 해당 비밀 범위의 `Secret Manager Secret Accessor` 역할을 부여함
+- 프로젝트 전체 또는 다른 보안 비밀로 권한 범위를 확대하지 않음
+- 새 Cloud Run 버전 생성, 컨테이너 상태 확인과 트래픽 전환이 모두 완료됨
+- 일반 환경변수는 `DEPLOYMENT_MODE=health-only`, `ALLOWED_ORIGINS`만 유지됨
+- `TEACHER_CODE`는 Secret Manager의 `latest` 버전 참조로만 구성됨
+- 공개 `/api/health`에서 `{"status":"ok"}`를 확인함
+- 허용된 Netlify Origin의 로그인 요청은 HTTP 503과 `Access-Control-Allow-Origin` 헤더를 반환함
+- OpenAI 키는 이 단계에서 조회·생성·연결·변경하지 않음

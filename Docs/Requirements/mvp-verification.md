@@ -76,3 +76,14 @@
 - 공개 HTTPS `/api/health` 응답 `{"status":"ok"}` 재확인
 - 공개 Netlify 학생 로그인 화면 정상 표시 재확인
 - 다음 검증은 사용자 승인 후 해당 비밀 범위의 접근 권한을 부여하고 재배포하여 수행함
+
+## 2026-11-27 교사 코드 Secret Manager 참조 완료 검증
+
+- 사용자 승인 후 Cloud Run 실행 서비스 계정에 `TEACHER_CODE` 보안 비밀 범위의 `Secret Manager Secret Accessor` 역할만 부여함
+- 새 Cloud Run 버전의 컨테이너 상태 확인과 트래픽 전환 완료
+- 일반 환경변수 `DEPLOYMENT_MODE=health-only`, `ALLOWED_ORIGINS` 유지 확인
+- 보안 비밀 환경변수 `TEACHER_CODE`가 Secret Manager `latest` 버전 참조로 연결됨을 확인
+- 공개 HTTPS `/api/health` 응답 `{"status":"ok"}` 확인
+- 허용된 Netlify Origin의 로그인 요청이 HTTP 503과 `Access-Control-Allow-Origin` 헤더를 반환함
+- 안전 모드에서 요청이 차단되어 검증용 학생 데이터가 생성되지 않음
+- OpenAI 키는 변경하지 않음
