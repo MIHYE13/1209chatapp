@@ -53,3 +53,12 @@
 - Cloud Run 정상 상태와 트래픽 전환 완료 확인
 - 공개 HTTPS `/api/health` 응답 `{"status":"ok"}` 재확인
 - 노출된 OpenAI 키 폐기·신규 키 발급과 Secret Manager 참조 연결은 다음 승인 단계에서 수행
+
+## 2026-11-27 Netlify 프론트엔드 배포 및 안전 모드 연결
+
+- Netlify 빌드 실패 원인이 누락된 공개 빌드 변수 `API_BASE_URL`, `WS_BASE_URL`임을 확인
+- 두 변수에 Cloud Run 공개 HTTPS·WSS 주소를 설정하고 최신 `main` 커밋 재배포 성공
+- 공개 `https://1209chatapp.netlify.app`에서 학생 로그인 화면 표시 확인
+- `health-only` 로그인 차단 응답이 브라우저에서 `Failed to fetch`로 보이는 CORS 미들웨어 순서 문제를 확인
+- CORS가 배포 차단 미들웨어의 503 응답까지 감싸도록 등록 순서를 조정함
+- 허용된 Netlify Origin의 로그인 요청이 HTTP 503, 안내 JSON과 `Access-Control-Allow-Origin` 헤더를 반환하는 회귀 테스트 통과
