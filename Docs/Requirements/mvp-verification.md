@@ -62,3 +62,7 @@
 - `health-only` 로그인 차단 응답이 브라우저에서 `Failed to fetch`로 보이는 CORS 미들웨어 순서 문제를 확인
 - CORS가 배포 차단 미들웨어의 503 응답까지 감싸도록 등록 순서를 조정함
 - 허용된 Netlify Origin의 로그인 요청이 HTTP 503, 안내 JSON과 `Access-Control-Allow-Origin` 헤더를 반환하는 회귀 테스트 통과
+- 메인 저장소 커밋 `b07b95c`, 백엔드 전용 저장소 커밋 `7a79fd5` 푸시 완료
+- Cloud Build `36da4073-d555-4f43-9c61-bddc1172b70b` 빌드·이미지 푸시·Cloud Run 배포 성공
+- 공개 Netlify 화면에서 검증용 입력 후 `배포 상태 확인 중입니다.` 안내가 표시되는 것을 확인
+- 안전 모드에서 로그인 요청이 차단되어 검증용 학생 데이터는 생성되지 않음
