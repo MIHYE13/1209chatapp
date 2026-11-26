@@ -63,6 +63,16 @@
 - 결정 기록: `Docs/Decisions/024-cloud-run-public-demo.md`
 - 공개 배포 안전장치: `DEPLOYMENT_MODE=health-only` 구현 및 로컬 상태 API 200·로그인 API 503 검증 완료
 
+### 2026-11-26 Cloud Run 시작 오류 수정
+
+- 첫 GitHub 자동 빌드는 성공했지만 Cloud Run 버전 `science-chat-backend-00004-ltk`가 시작되지 않음
+- 실행 로그에서 컨테이너 경로 `/app/main.py`의 `API_DIR.parents[1]`가 `IndexError`를 발생시키는 것을 확인함
+- 프로젝트 루트 후보 계산을 얕은 컨테이너 경로에서도 안전한 `API_DIR.parent.parent`로 변경함
+- Python 문법 검사, `/app` 경로 계산 검사, `health-only` 상태 API 200·로그인 API 503 검증 통과
+- 교사 관리자 통합 검사는 통과함
+- 전체 MVP 검사는 기존 `SCIENCE6` 시드 활동 시간이 만료되어 WebSocket 메시지 대신 타이머 차단이 적용되므로 이번 배포 수정 검증에서는 제외함
+- 다음 확인: 백엔드 저장소 푸시 후 자동 재배포 성공 여부와 Cloud Run 환경변수·최대 인스턴스 설정 확인
+
 ## 수업 참고자료 반영
 
 - `Docs/Research/10주차-AI융합교육을-위한-웹프로그래밍-기초.md`
