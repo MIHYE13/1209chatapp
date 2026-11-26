@@ -44,3 +44,12 @@
 - `health-only`에서 `/api/login` 차단 응답 확인
 - 최소 인스턴스 0개, 최대 인스턴스 1개 확인
 - 실제 학생 로그인·채팅은 `TEACHER_CODE`, 허용 프론트엔드 주소와 데이터 보관 구성을 완료한 뒤 별도 검증함
+
+## 2026-11-27 비밀정보 노출 대응 검증
+
+- Cloud Run 일반 환경변수에 잘못 입력된 `OPENAI_API_KEY`와 `TEACHER_CODE` 삭제 완료
+- 중복 `ALLOWED_ORIGINS` 항목 삭제 완료
+- `DEPLOYMENT_MODE=health-only` 복구 및 새 버전 배포 완료
+- Cloud Run 정상 상태와 트래픽 전환 완료 확인
+- 공개 HTTPS `/api/health` 응답 `{"status":"ok"}` 재확인
+- 노출된 OpenAI 키 폐기·신규 키 발급과 Secret Manager 참조 연결은 다음 승인 단계에서 수행
